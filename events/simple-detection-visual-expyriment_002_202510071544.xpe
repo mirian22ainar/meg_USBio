@@ -1,0 +1,58 @@
+#Expyriment 1.0.0 (Python 3.10.16), .xpe-file, coding: UTF-8
+#date: Tue Oct 07 2025 15:44:43
+#sha1: 4614af
+#modules: meg_client.py (7dcbbf)
+#display: size=(800, 600), window_mode=False, opengl=2
+#os: uname_result(system='Linux', node='is246303', release='6.14.0-32-generic', version='#32~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Sep  2 14:21:04 UTC 2', machine='x86_64')
+Time,Type,Event,Value,Detail,Detail2
+10407,design,log,
+#design: #exp: Visual Detection
+#design: #dvn: trial,wait,respkey,RT
+#design: block_cnt,block_id,trial_cnt,trial_id
+10407,design,logged,
+10407,Experiment,started
+10419,Stimulus,presented,2
+10952,Keyboard,received,32,wait
+10962,Stimulus,presented,1
+12731,Stimulus,presented,0
+14757,Stimulus,presented,1
+15853,Stimulus,presented,0
+16354,Stimulus,presented,1
+18058,Stimulus,presented,0
+18340,Stimulus,presented,1
+19825,Stimulus,presented,0
+21850,Stimulus,presented,1
+22907,Stimulus,presented,0
+24925,Stimulus,presented,1
+26392,Stimulus,presented,0
+28415,Stimulus,presented,1
+29761,Stimulus,presented,0
+31787,Stimulus,presented,1
+33681,Stimulus,presented,0
+35707,Stimulus,presented,1
+37047,Stimulus,presented,0
+37352,Stimulus,presented,1
+38863,Stimulus,presented,0
+39238,Stimulus,presented,1
+40277,Stimulus,presented,0
+40664,Stimulus,presented,1
+42400,Stimulus,presented,0
+44422,Stimulus,presented,1
+46162,Stimulus,presented,0
+46528,Stimulus,presented,1
+47799,Stimulus,presented,0
+48287,Stimulus,presented,1
+50236,Stimulus,presented,0
+50599,Stimulus,presented,1
+52470,Stimulus,presented,0
+52784,Stimulus,presented,1
+54392,Stimulus,presented,0
+54848,Stimulus,presented,1
+56391,Stimulus,presented,0
+56787,Stimulus,presented,1
+58126,Stimulus,presented,0
+58621,Stimulus,presented,1
+60319,Stimulus,presented,0
+60650,Experiment,ended
+60664,Data,saved
+60668,Stimulus,presented,4

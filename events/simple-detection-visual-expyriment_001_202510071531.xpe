@@ -1,0 +1,18 @@
+#Expyriment 1.0.0 (Python 3.10.16), .xpe-file, coding: UTF-8
+#date: Tue Oct 07 2025 15:31:04
+#sha1: 379f04
+#modules: meg_client.py (7dcbbf)
+#display: size=(800, 600), window_mode=False, opengl=2
+#os: uname_result(system='Linux', node='is246303', release='6.14.0-32-generic', version='#32~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Sep  2 14:21:04 UTC 2', machine='x86_64')
+Time,Type,Event,Value,Detail,Detail2
+10247,design,log,
+#design: #exp: Visual Detection
+#design: #dvn: trial,wait,respkey,RT
+#design: block_cnt,block_id,trial_cnt,trial_id
+10247,design,logged,
+10247,Experiment,started
+10259,Stimulus,presented,2
+16096,Keyboard,received,32,wait
+16107,Stimulus,presented,1
+17181,Stimulus,presented,0
+17182,stderr,received,'Traceback (most recent call last):\n  File "/home/neurostim/test/MEG_USBio/simple-detection-visual-expyriment.py", line 60, in <module>\n    key_mask, rt = get_resp_rt(MAX_RESPONSE_DELAY)\n  File "/home/neurostim/test/MEG_USBio/simple-detection-visual-expyriment.py", line 21, in get_resp_rt\n    while resp_box.get_response_button_mask() !=0:\n  File "/home/neurostim/test/MEG_USBio/meg_client.py", line 153, in get_response_button_mask\n    self._tx(bytes([OP_GET_RESPONSE_BUTTON]))\n  File "/home/neurostim/test/MEG_USBio/meg_client.py", line 95, in _tx\n    self._ensure()\n  File "/home/neurostim/test/MEG_USBio/meg_client.py", line 92, in _ensure\n    raise RuntimeError("Port série non ouvert")\nRuntimeError: Port série non ouvert'
