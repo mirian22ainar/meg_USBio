@@ -13,41 +13,47 @@ Ce dépôt contient l’ensemble des tests et outils développés pour valider l
 
 ---
 
-## 🧩 Composants du projet
 
-### 🔸 1. Firmware Arduino
+### Description des dossiers et fichiers
 
-Le fichier [`meg_protocol.ino`](arduino/meg_protocol.ino) définit le protocole série :
-- Commandes binaires pour le contrôle des triggers et la lecture des boutons.
-- Gestion d’un temps de pulse configurable (en ms).
-- Refractory period configurable.
-- Transmission des états des 8 lignes boutons.
+#### 1. **`arduino/`** 
+Ce dossier contient le code Arduino utilisé pour gérer la communication série avec le microcontrôleur et l'envoi des triggers.
 
-Les lignes utilisées sont :
-| Ligne | Broche Arduino | Signal STI | Fonction / Bouton FORP |
-|:------|:----------------|:------------|:------------------------|
-| 0 | 22 | STI010 | Rouge gauche |
-| 1 | 23 | STI009 | Vert gauche |
-| 2 | 24 | STI015 | Rouge droit |
-| 3 | 25 | STI014 | Vert droit |
-| 4 | 26 | STI007 | Bleu gauche |
-| 5 | 27 | STI008 | Jaune gauche |
-| 6 | 28 | STI012 | Bleu droit |
-| 7 | 29 | STI013 | Jaune droit |
+- **[`meg_protocol.ino`](arduino/meg_protocol.ino)** : Le firmware principal pour la gestion du protocole série entre l'Arduino et le système MEG, ainsi que la génération de triggers sur des lignes spécifiques.
+- **[`recep_exec.ino`](arduino/recep_exec.ino)** : Une version de test/réception permettant de simuler et vérifier les réponses des boutons.
 
-*(Voir `docs/forp_mapping.png` pour le schéma complet.)*
+#### 2. **`python/`**
+Ce dossier contient les scripts Python pour interagir avec le microcontrôleur Arduino et effectuer des tests.
+
+- **[`meg_client.py`](python/meg_client.py)** : Une API Python pour la communication série avec l'Arduino. Elle permet d'envoyer des triggers et de lire les réponses des boutons de manière simple et efficace.
+- **[`test_meg_client.py`](python/test_meg_client.py)** : Le script principal de test qui vérifie le bon fonctionnement des triggers et des boutons.
+- **[`test_meg2.py`](python/test_meg2.py)** : Un test basique mesurant la latence de la détection des boutons.
+- **[`simple-detection-visual-expyriment.py`](python/simple-detection-visual-expyriment.py)** : Un script complet pour réaliser une expérience Expyriment de détection visuelle, mesurant le temps de réaction des participants.
+
+#### 3. **`notebooks/`**
+Ce dossier contient des notebooks Jupyter utilisés pour analyser les résultats des tests.
+
+- **[`verif_test_meg_client.ipynb`](notebooks/verif_test_meg_client.ipynb)** : Vérifie la latence et la précision des timings des triggers en analysant les résultats des tests effectués avec `test_meg_client.py`.
+- **[`check_triggers.ipynb`](notebooks/check_triggers.ipynb)** : Analyse temporelle des triggers enregistrés, utile pour évaluer leur performance et leur exactitude.
+
+#### 4. **`docs/`**
+Ce dossier contient des schémas et des fichiers de documentation supplémentaires.
+
+- **[`forp_mapping.png`](docs/forp_mapping.png)** : Schéma représentant la correspondance entre les lignes du boîtier STI et les boutons FORP.
+- **[`pinout.txt`](docs/pinout.txt)** : Détail des connexions physiques entre l'Arduino, le boîtier STI et le boîtier FORP, utile pour les branchements matériels.
 
 ---
 
-### 🔸 2. API Python (`meg_client.py`)
+### Prérequis
 
-Interface série simplifiée pour communiquer avec le firmware Arduino.  
-Elle permet :
-```python
-from meg_client import MegClient
+Avant d'exécuter les scripts Python, assure-toi que tu as installé les dépendances nécessaires :
 
-with MegClient('/dev/ttyACM0') as dev:
-    dev.set_trigger_duration(5)
-    dev.send_trigger_mask(0b00001111)
-    m = dev.get_response_button_mask()
-    print(dev.decode_forp(m))
+- **Python 3.x**
+- **pyserial** : Pour la communication série avec l'Arduino.
+- **expyriment** : Pour l'exécution des expériences Expyriment.
+
+Installe les dépendances avec la commande suivante :
+
+```bash
+pip install -r requirements.txt
+```
