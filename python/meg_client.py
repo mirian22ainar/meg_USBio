@@ -47,7 +47,7 @@ from typing import List, Dict
 
 # --- Constantes par défaut ---
 DEFAULT_BAUD = 115200      # vitesse de communication série (doit correspondre à celle de l’Arduino)
-DEFAULT_TIMEOUT = 0.2      # délai max (s) pour lire une réponse avant timeout
+DEFAULT_TIMEOUT = 0.2      # délai max en s pour lire une réponse avant timeout
 
 # --- OpCodes correspondant aux commandes Arduino ---
 OP_SET_TRIGGER_DURATION   = 10
@@ -91,16 +91,15 @@ class MegClient:
         self.ser: serial.Serial | None = None
 
         # Dictionnaire de correspondance entre bits du mask et boutons physiques FORP
-        # (adapter selon le câblage réel)
         self.forp_map: Dict[int, str] = {
-            0: "bouton rouge gauche activé",  # STI010 (out) pin 22
-            1: "bouton vert gauche activé",   # STI009 (out) pin 23
-            2: "bouton rouge droit activé",   # STI015 (out) pin 24
-            3: "bouton vert droit activé",    # STI014 (out)
-            4: "bouton bleu gauche activé",   # STI007 (out)
-            5: "bouton jaune gauche activé",  # STI008 (out)
-            6: "bouton bleu droit activé",    # STI012 (out)
-            7: "bouton jaune droit activé",   # STI013 (out)
+        0: "bouton bleu gauche activé",   # STI007 (out) pin 22
+        1: "bouton jaune gauche activé",  # STI008 (out) pin 23
+        2: "bouton vert gauche activé",   # STI009 (out) pin 24
+        3: "bouton rouge gauche activé",  # STI010 (out) pin 25
+        4: "bouton bleu droit activé",    # STI012 (out) pin 26
+        5: "bouton jaune droit activé",   # STI013 (out) pin 27
+        6: "bouton vert droit activé",    # STI014 (out) pin 28
+        7: "bouton rouge droit activé",   # STI015 (out) pin 29
         }
 
     # --------------------------------------------------------------------------
@@ -155,7 +154,7 @@ class MegClient:
 
     def set_trigger_duration(self, duration_ms: int) -> None:
         """
-        Définit la durée (en millisecondes) du signal TTL généré pour chaque trigger.
+        Définit la durée (en ms) du signal TTL généré pour chaque trigger.
 
         Argument :
         - duration_ms : entier entre 0 et 65535 (valeur 5 = 5 ms)
@@ -222,7 +221,7 @@ class MegClient:
     def set_low_on_line(self, line: int) -> None:
         """Passe une seule ligne (0–7) en LOW, de manière persistante."""
         if not (0 <= line <= 7):
-            raise ValueError("line doit être entre 0 et 7")
+            raise ValueError("la ligne doit être entre 0 et 7")
         self._tx(bytes([OP_SET_LOW_ON_LINE, line]))
 
     def get_response_button_mask(self) -> int:
