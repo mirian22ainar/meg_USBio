@@ -1,6 +1,6 @@
-# MEGIO_USBio — Conception d'un dispositif Arduino pour triggers et boutons forP
+# MEGIO_USBio — Conception d'un dispositif Arduino pour triggers et boutons réponses
 
-Ce dépôt contient une API *meg_client.py* et un code arduino *meg_protocol.ino* permettant l'implémentation et l'utilisation de la solution proposée en salle MEG. Il contient également l’ensemble des tests et outils développés pour valider la **précision temporelle** et la **fiabilité** du microcontrôleur Arduino dans le cadre des expériences MEG (magnétoencéphalographie). 
+Ce dépôt contient une API *meg_client.py* et un code arduino *meg_protocol.ino* permettant l'implémentation et l'utilisation de la solution Arduino proposée en salle MEG pour remplacer les ports parallèles. Il contient également l’ensemble des tests et outils développés pour valider la **précision temporelle** et la **fiabilité** du microcontrôleur Arduino dans le cadre des expériences MEG (magnétoencéphalographie). 
 
 ---
 
