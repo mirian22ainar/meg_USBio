@@ -2,7 +2,7 @@
 meg_client.py — Client Python pour la communication avec un Arduino dans le cadre d’expériences MEG (gestion de triggers et boutons réponse).
 
 ====================================================================================
-🧠 Objectif
+Objectif
 ------------------------------------------------------------------------------------
 Ce module fournit une interface haut-niveau pour dialoguer avec un microcontrôleur Arduino
 connecté à un système MEG. Il permet :
@@ -11,7 +11,7 @@ connecté à un système MEG. Il permet :
     - de lire l’état des boutons réponse (boîtier FORP, par ex.)
 
 ====================================================================================
-⚙️ Protocole de communication série
+Protocole de communication série
 ------------------------------------------------------------------------------------
 - Communication via port série (USB)
 - Encodage binaire : chaque commande commence par un opcode (entier 0–255)
@@ -149,7 +149,7 @@ class MegClient:
         return buf
 
     # --------------------------------------------------------------------------
-    # 🧩 API — Commandes de haut niveau envoyées à l’Arduino
+    # API — Commandes de haut niveau envoyées à l’Arduino
     # --------------------------------------------------------------------------
 
     def set_trigger_duration(self, duration_ms: int) -> None:

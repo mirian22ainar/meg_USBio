@@ -1,11 +1,3 @@
-/*
-  One-press -> One-trigger (D22..D29 -> mask, D30 -> trigger)
-  Logique identique à la boucle Python:
-    - while mask != 0: pass
-    - attendre le premier mask != 0 -> TRIGGER IMMÉDIAT
-    - attendre relâchement stable (mask == 0) pour réarmer
-*/
-
 #include <Arduino.h>
 
 // ====== Configuration ======
@@ -16,7 +8,7 @@ const unsigned long PULSE_MS = 5;      // largeur du trigger (ms)
 // Anti-doubles: on ne réarme que si mask==0 est resté stable X ms
 const unsigned long RELEASE_STABLE_MS = 20;
 
-// Polarité des entrées (adapter à ton boîtier)
+// Polarité des entrées
 // true  -> ACTIVE BAS (repos=HIGH, appui=LOW) avec INPUT_PULLUP
 // false -> ACTIVE HAUT (repos=LOW,  appui=HIGH) avec INPUT
 const bool ACTIVE_LOW = true;

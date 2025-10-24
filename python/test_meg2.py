@@ -1,7 +1,7 @@
 from time import sleep, time
 from meg_client import MegClient
 
-PORT = "/dev/ttyACM0"   # adapte selon ta machine
+PORT = "/dev/ttyACM0"   # à adapter selon machine
 
 with MegClient(PORT) as arduino:
     sleep(1)

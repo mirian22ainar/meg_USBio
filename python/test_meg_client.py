@@ -2,11 +2,11 @@ from time import sleep, time
 from meg_client import MegClient
 
 # --- Paramètres ---
-PORT = "/dev/ttyACM0"   # adapte selon ta machine
-N_ATTEMPTS = 8           # nombre de tentatives
+PORT = "/dev/ttyACM0"   # à adapter selon machine
+N_ATTEMPTS = 8
 WINDOW_MS = 5000        # durée de chaque fenêtre en millisecondes
 
-# --- Fonction de mesure (max_duration en ms ; RT renvoyé en secondes) ---
+# --- Fonction de mesure (max_duration en ms ; rt renvoyé en secondes) ---
 def get_resp_rt(max_duration):
     # Vider les appuis en cours (attend que tout soit relâché)
     while resp_box.get_response_button_mask() != 0:
