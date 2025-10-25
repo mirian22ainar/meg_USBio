@@ -1,4 +1,5 @@
 # MEGIO_USBio — Design of an Arduino-Based Device for Triggers and Response Buttons
+*(🇫🇷 A French version is available below.)*
 
 This repository contains the Python API *meg_client.py* and the Arduino firmware *meg_protocol.ino*, enabling the implementation and use of an Arduino-based solution in the MEG environment to replace the legacy parallel ports.  
 It also includes all the tests and tools developed to validate the **temporal precision** and **reliability** of the Arduino microcontroller within MEG (magnetoencephalography) experiments.
