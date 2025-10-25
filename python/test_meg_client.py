@@ -26,7 +26,7 @@ resp_box = MegClient(PORT)
 try:
     resp_box.open()
 
-    # --- (Optionnel) séquence de test des triggers, si tu veux la garder ---
+    # --- Séquence de test des triggers ---
     print("Réglage durée pulse = 5 ms")
     resp_box.set_trigger_duration(5)
     sleep(10)
@@ -69,7 +69,7 @@ try:
         print(f"  Boutons détectés : {decoded}")
         print(f"  RT (s) : {rt if rt is not None else 'aucune réponse détectée'}\n")
 
-        # Petite pause entre tentatives (facultatif)
+        # Petite pause entre tentatives
         sleep(0.5)
 
 finally:

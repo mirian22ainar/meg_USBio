@@ -1,12 +1,12 @@
 from time import sleep, time
 from meg_client import MegClient
 
-PORT = "/dev/ttyACM0"   # à adapter selon machine
+PORT = "/dev/ttyACM0" # to adapt depending on the computer
 
 with MegClient(PORT) as arduino:
     sleep(1)
 
-    print("Appuie sur un des boutons maintenant (appuie sur un/des boutons ou relie D22..D29 à GND)")
+    print("Press a button now (or put D22..D29 to LOW)")
    
     for trial in range(10):
         sleep(0.500)  
