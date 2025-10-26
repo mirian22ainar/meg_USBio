@@ -1,6 +1,3 @@
-// MEG_binary_protocol_min.ino
-// Gère les opcodes décimaux du client Python (voir tableau).
-// Sorties: D30..D37  | Entrées: D22..D29
 // Baud: 115200  8N1
 
 #include <Arduino.h>
@@ -8,9 +5,9 @@
 static const uint8_t OUT_PINS[8] = {30,31,32,33,34,35,36,37};
 static const uint8_t IN_PINS[8]  = {22,23,24,25,26,27,28,29};
 
-static volatile uint16_t g_pulse_ms = 5;   // durée des pulses par défaut
+static volatile uint16_t g_pulse_ms = 5;   // pulses duration
 
-// === Helpers lecture binaire ===
+//Helpers binary reading
 int readU8Blocking() {
   while (Serial.available() < 1) { /* wait */ }
   return Serial.read() & 0xFF;
@@ -22,7 +19,7 @@ uint16_t readU16LEBlocking() {
   return (uint16_t)(lo | (hi << 8));
 }
 
-// === Actions sorties ===
+// === Output ===
 void applyMaskHigh(uint8_t mask) {
   for (uint8_t i=0;i<8;i++) {
     if (mask & (1<<i)) digitalWrite(OUT_PINS[i], HIGH);
@@ -36,7 +33,6 @@ void applyMaskLow(uint8_t mask) {
 }
 
 void pulseMask(uint8_t mask, uint16_t width_ms) {
-  // Monte toutes les lignes en même temps
   for (uint8_t i=0;i<8;i++) {
     if (mask & (1<<i)) digitalWrite(OUT_PINS[i], HIGH);
   }
@@ -46,8 +42,8 @@ void pulseMask(uint8_t mask, uint16_t width_ms) {
   }
 }
 
-// === Lecture entrées ===
-// NOTE: si tes boutons sont câblés en actif-bas, mets 'invert=true'
+// === Input ===
+// 'invert' value to adapt depending on button polarity
 uint8_t readButtons(bool invert=false) {
   uint8_t m = 0;
   for (uint8_t i=0;i<8;i++) {
@@ -63,10 +59,10 @@ void setup() {
 
   for (uint8_t i=0;i<8;i++) pinMode(OUT_PINS[i], OUTPUT);
   for (uint8_t i=0;i<8;i++) {
-    pinMode(IN_PINS[i], INPUT_PULLUP); // la plupart des boîtiers réponse nécessitent pullup
+    pinMode(IN_PINS[i], INPUT_PULLUP); //most response boxes need pullup
   }
 
-  // Tout à LOW au démarrage
+  // Every line to LOW when starting
   applyMaskLow(0xFF);
 }
 
@@ -111,13 +107,13 @@ void loop() {
       break;
     }
     case 20: { // get_response_button_mask -> write [u8 mask]
-      // Passe à 'true' si tes entrées sont actives à GND (actif-bas)
+      // Become 'true' if input are active when LOW
       uint8_t mask = readButtons(/*invert=*/true);
       Serial.write(mask);
       break;
     }
     default:
-      // opcode inconnu: ignorer
+      // opcode unknown: ignore
       break;
   }
 }
