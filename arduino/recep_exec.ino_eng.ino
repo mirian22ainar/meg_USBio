@@ -15,7 +15,7 @@ const bool ACTIVE_LOW = true;
 bool armed = true;                      // ready to trigger?
 unsigned long zero_since_ms = 0;        // timer for stability of mask==0
 
-// ====== Helpers ======
+// Helpers
 inline void setup_inputs() {
   for (uint8_t i = 0; i < 8; ++i) {
     if (ACTIVE_LOW) pinMode(RESP_PINS[i], INPUT_PULLUP);
@@ -55,7 +55,7 @@ void loop() {
   uint8_t mask = read_mask();
 
   if (armed) {
-    // Like in Python: trigger as soon as mask != 0
+    // trigger as soon as mask != 0
     if (mask != 0) {
       fire_trigger();
       armed = false;            // disarm until stable release

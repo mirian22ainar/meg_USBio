@@ -55,7 +55,7 @@ void loop() {
   uint8_t mask = read_mask();
 
   if (armed) {
-    // Comme en Python: on déclenche dès le premier mask != 0
+    // on déclenche dès le premier mask != 0
     if (mask != 0) {
       fire_trigger();
       armed = false;            // désarme jusqu'au relâchement stable
