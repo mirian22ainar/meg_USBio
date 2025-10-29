@@ -1,0 +1,23 @@
+#Expyriment 1.0.0 (Python 3.13.2), .xpe-file, coding: UTF-8
+#date: Wed Oct 29 2025 10:17:44
+#sha1: 1c695a
+#modules: meg_client.py (50f347)
+#display: size=(800, 600), window_mode=False, opengl=2
+#os: uname_result(system='Linux', node='is246303', release='6.14.0-33-generic', version='#33~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Fri Sep 19 17:02:30 UTC 2', machine='x86_64')
+Time,Type,Event,Value,Detail,Detail2
+10362,design,log,
+#design: #exp: Visual Detection
+#design: #dvn: trial,wait,respkey,RT
+#design: block_cnt,block_id,trial_cnt,trial_id
+10362,design,logged,
+10362,Experiment,started
+10375,Stimulus,presented,2
+17428,Keyboard,received,32,wait
+17438,Stimulus,presented,1
+19065,Stimulus,presented,0
+19267,stderr,received,'Traceback (most recent call last):'
+19279,stderr,received,'  File "/home/neurostim/mirian/MEG_USBio/python/simple-detection-visual-expyriment.py", line 63, in <module>\n    key_mask, rt = get_resp_rt(MAX_RESPONSE_DELAY)\n                   ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^'
+19279,stderr,received,'  File "/home/neurostim/mirian/MEG_USBio/python/simple-detection-visual-expyriment.py", line 24, in get_resp_rt\n    while resp_box.get_response_button_mask() !=0:\n          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^'
+19279,stderr,received,'  File "/home/neurostim/mirian/MEG_USBio/python/meg_client.py", line 240, in get_response_button_mask\n    resp = self._rx_exact(1)'
+19279,stderr,received,'  File "/home/neurostim/mirian/MEG_USBio/python/meg_client.py", line 148, in _rx_exact\n    raise TimeoutError(f"Lecture incomplète : attendu {n} octets, reçu {len(buf)}")'
+19279,stderr,received,'TimeoutError: Lecture incomplète : attendu 1 octets, reçu 0'

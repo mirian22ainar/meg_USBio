@@ -1,0 +1,11 @@
+#Expyriment 1.0.0 (Python 3.13.2), .xpd-file, coding: UTF-8
+#date: Wed Oct 29 2025 10:17:44
+#--EXPERIMENT INFO
+#e mainfile: simple-detection-visual-expyriment.py
+#e sha1: 1c695a
+#e modules: meg_client.py (50f347)
+#e Experiment: Visual Detection
+#e no between subject factors
+#--SUBJECT INFO
+#s id: 1
+subject_id,trial,wait,respkey,RT
