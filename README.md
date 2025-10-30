@@ -9,7 +9,7 @@ It also includes all the tests and tools developed to validate the **temporal pr
 
 - Provide a **simple Python API** (`meg_client.py`) to control the Arduino.  
 - Verify the latency and temporal stability of the **TTL triggers generated** by the Arduino.  
-- Measure the detection delay of **FORP button presses**.  
+- Measure the detection delay of **FORP button box**.  
 - Offer **example scripts** using this API, up to full integration within an **Expyriment** experimental framework.
 
 
@@ -29,7 +29,8 @@ This folder contains Python scripts used to interact with the Arduino microcontr
   They define methods to send triggers and read response buttons in a simple and efficient way. These methods can be integrated directly into your experimental scripts.  
 - **[`test_meg_client.py`](python/test_meg_client.py)** and **[`test_meg_client_eng.py`](python/test_meg_client_eng.py)** — Main testing script that verifies trigger and button functionality using **all** methods defined in the API.  
 - **[`test_meg2.py`](python/test_meg2.py)** — Basic example measuring the delay between the display of an image on the computer screen and the detection of a button press connected to pins 22–29 of the Arduino.  
-  This test can be run locally using a portable response button such as a Putikeeg.  
+  This test can be run locally using a portable response button such as a Putikeeg. 
+- **[`timing_recep_exec.py`](python/timing_recep_exec.py)** — Minimal script printing in real time all messages sent by the Arduino over serial connection, for the monitoring and debugging of `recep_exec_eng.ino` .  
 - **[`simple-detection-visual-expyriment.py`](python/simple-detection-visual-expyriment.py)** — Concrete example using several API methods to implement a visual detection task in Expyriment, measuring participant reaction times.
 
 #### 3. **`notebooks/`**
@@ -43,7 +44,7 @@ This folder contains schematics and additional documentation.
 
 - **[`forp_mapping.ipynb`](docs/forp_mapping.ipynb)** and **[`forp_mapping_eng.ipynb`](docs/forp_mapping_eng.ipynb)** — Notebook detailing the wiring layout for integrating the Arduino into the existing MEG system.  
 - **[`schematic_forp_mapping.png`](docs/schematic_forp_mapping.png)** — Diagram showing the correspondence between STI box lines and FORP buttons.  
-- **[`schematic_Stim-MEG.png`](docs/schematic_Stim-MEG.png)** — Global system diagram showing physical connections between the Arduino, STI box, and FORP box, useful for hardware setup.
+- **[`schematic_Stim-MEG.png`](docs/schematic_Stim-MEG.png)** — Global system diagram showing physical connections between the Arduino, STI box, and FORP button box, useful for hardware setup.
 
 
 ### Prerequisites
@@ -90,7 +91,7 @@ Ce dépôt contient une API *meg_client.py* et un code arduino *meg_protocol.ino
 
 - Fournir une **API Python simple** (`meg_client.py`) pour piloter l’Arduino.
 - Vérifier la latence et la stabilité temporelle des **triggers TTL générés** par l’Arduino.
-- Mesurer le délai de détection des **appuis sur les boutons FORP**.
+- Mesurer le délai de détection des **appuis sur les boutons réponses FORP**.
 - Proposer des **exemples de scripts** utilisant cette API, jusqu’à une intégration complète dans une expérience **Expyriment**.
 
 
@@ -108,6 +109,7 @@ Ce dossier contient les scripts Python pour interagir avec le microcontrôleur A
 - **[`meg_client.py`](python/meg_client.py)** et **[`meg_client_eng.py`](python/meg_client_eng.py)** : API Python (en français et en anglais) pour la communication série avec l'Arduino. Elle définit les méthodes permettant d'envoyer des triggers et de lire les réponses des boutons de manière simple et efficace. Ces méthodes seront donc à intégrer à vos scripts d'expériences au besoin.
 - **[`test_meg_client.py`](python/test_meg_client.py)** et **[`test_meg_client_eng.py`](python/test_meg_client_eng.py)** : Le script principal de test qui vérifie le bon fonctionnement des triggers et des boutons en utilisant **toutes** les méthodes définies dans l'API.
 - **[`test_meg2.py`](python/test_meg2.py)** : Un exemple d'application basique mesurant la durée séparant l'affichage d'une image sur l'écran de l'ordinateur et la détection d'un appui sur un des boutons branchés au niveau des pins 22-29 de l'Arduino. C'est un test qui peut être réalisé sur son ordinateur portable avec un bouton réponse Putikeeg.
+- **[`timing_recep_exec.py`](python/timing_recep_exec.py)** — Script minimaliste affichant en temps réel les messages envoyés par l’Arduino via le port série, pour la vérification ou débogage de `recep_exec_eng.ino` .  
 - **[`simple-detection-visual-expyriment.py`](python/simple-detection-visual-expyriment.py)** : Un exemple d'application concret de certaines méthodes pour réaliser une expérience Expyriment de détection visuelle, mesurant le temps de réaction des participants.
 
 #### 3. **`notebooks/`**
@@ -121,7 +123,8 @@ Ce dossier contient des schémas et des fichiers de documentation supplémentair
 
 - **[`forp_mapping.ipynb`](docs/forp_mapping.ipynb)** et **[`forp_mapping_eng.ipynb`](docs/forp_mapping_eng.ipynb)**  : notebook reprenant les câblages réalisés pour l'intégration de l'arduino dans le système actuel.
 - **[`schematic_forp_mapping.png`](docs/schematic_forp_mapping.png)** : Schéma représentant la correspondance entre les lignes du boîtier STI et les boutons FORP.
-- **[`schematic_Stim-MEG.png`](docs/schematic_Stim-MEG.png)** : schéma du système global Détail des connexions physiques entre l'Arduino, le boîtier STI et le boîtier FORP, utile pour les branchements matériels.
+- **[`schematic_Stim-MEG.png`](docs/schematic_Stim-MEG.png)** : schéma du système global Détail des connexions physiques entre l'Arduino, le boîtier STI et le boîtier réponse 
+FORP, utile pour les branchements matériels.
 
 
 ### Prérequis
