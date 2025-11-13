@@ -78,7 +78,8 @@ Steps to follow:
 
 You are now ready to launch your Python script!
 
-Note for whoever initializes the device:
+**Note for whoever initializes the device :**
+
 This step must be done only during the device initialization (or after a reboot).
 Make sure to upload the *meg_protocol.ino* firmware to the Arduino by connecting it to your computer and clicking *Upload* in the Arduino IDE.
 
@@ -160,5 +161,6 @@ Avant d'exécuter les scripts Python, assure-toi que tu as installé les dépend
  
  Il ne vous reste plus qu'à lancer votre script python !
 
-Note d’initialisation :
+**Note d’initialisation :**
+
 Effectuez cette étape uniquement lors de la mise en service du dispositif (ou après un redémarrage). Assurez-vous que l'Arduino est branchée correctement à votre ordinateur puis téléversez le firmware *meg_protocol.ino* sur l’Arduino via le bouton *Upload* de l’IDE Arduino.
