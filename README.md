@@ -63,22 +63,25 @@ Before running the Python scripts, make sure the following dependencies are inst
 You will need:
 - The API *meg_client.py*  
 - Your Python experiment script using this API (e.g., *simple-detection-visual-expyriment.py*)  
-- The Arduino firmware *meg_protocol.ino*  
-- The physical Arduino setup  
+- The physical Arduino setup
 
 Steps to follow:
 1. Copy the Python API into the folder containing your experiment scripts.  
-2. Open the *meg_protocol.ino* file in the Arduino IDE.  
+2. Open the Arduino IDE.  
 3. Connect the Arduino device to your computer via USB.  
 4. Ensure that the board and port are correctly detected under *Tools*.  
 5. Check that the port name matches the one defined in your Python script.  
 6. Verify that the board settings are properly configured under *Tools*:  
    - *Tools → Board: "Arduino Mega or Mega 2560"*  
    - *Processor: ATmega2560 (Mega 2560)*  
-7. Upload the code to the Arduino by clicking *Upload*.  
-8. Connect the cables following the provided wiring diagram.  
+7. Connect the cables following the provided wiring diagram.  
 
 You are now ready to launch your Python script!
+
+Note for whoever initializes the device:
+This step must be done only during the device initialization (or after a reboot).
+Make sure to upload the *meg_protocol.ino* firmware to the Arduino by connecting it to your computer and clicking *Upload* in the Arduino IDE.
+
 
 ---
 
@@ -144,19 +147,18 @@ Avant d'exécuter les scripts Python, assure-toi que tu as installé les dépend
  Il vous faut : 
  - l'API *meg_client.py*
  - votre script python utilisant les méthodes de l'API (par exemple : *simple-detection-visual-expyriment.py*)
- - le code "*meg_protocol.ino*
  - le dispositif avec Arduino
 
  Etapes à suivre :
  - Se munir de l'API python et le placer dans un dossier contenant les futurs scripts python d'expériences.
- - Se munir du code *meg_protocol.ino* et l'ouvrir sur l'IDE Arduino
+ - Ouvrir l'IDE Arduino
  - Brancher le dispositif à l'ordinateur par USB
  - S'assurer que la carte/le port est bien détecté dans *Tools*
  - Assurer vous que le port affiché est bien celui défini dans votre script python
  - S'assurer que les paramètres de la carte sont bien configurés dans *Tools* : *Tools/Board : " Arduino Mega or Mega 2560* et *Processor : ATMega 2560 (2560)*
- - Téléverser le code sur la carte arduino en cliquant sur *Upload*
  - Brancher les câbles en suivant le schéma de câblage fourni.
  
  Il ne vous reste plus qu'à lancer votre script python !
 
-
+Note d’initialisation :
+Effectuez cette étape uniquement lors de la mise en service du dispositif (ou après un redémarrage). Assurez-vous que l'Arduino est branchée correctement à votre ordinateur puis téléversez le firmware *meg_protocol.ino* sur l’Arduino via le bouton *Upload* de l’IDE Arduino.
