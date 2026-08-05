@@ -51,6 +51,7 @@ DEFAULT_BAUD = 115200      # vitesse de communication série (doit correspondre 
 DEFAULT_TIMEOUT = 0.2      # délai max en s pour lire une réponse avant timeout
 
 # --- OpCodes correspondant aux commandes Arduino ---
+OP_GET_INFO               = 1
 OP_SET_TRIGGER_DURATION   = 10
 OP_SEND_TRIGGER_MASK      = 11
 OP_SEND_TRIGGER_ON_LINE   = 12
@@ -58,7 +59,71 @@ OP_SET_HIGH_MASK          = 13
 OP_SET_LOW_MASK           = 14
 OP_SET_HIGH_ON_LINE       = 15
 OP_SET_LOW_ON_LINE        = 16
+OP_SET_PORT_MASK          = 17
 OP_GET_RESPONSE_BUTTON    = 20
+OP_GET_EVENT              = 21
+OP_GET_MICROS             = 22
+OP_CLEAR_EVENTS           = 23
+OP_SET_DEBOUNCE           = 24
+
+# --- Bits de capacité renvoyés par get_info() ---
+CAP_ATOMIC_PORT = 0x01     # opcode 17 : les 8 lignes écrites en une seule fois
+CAP_TIMESTAMPS  = 0x02     # opcodes 21-24 : événements horodatés par micros()
+
+# --- Drapeaux de la réponse à get_event() ---
+EV_PRESENT = 0x01          # un événement suit
+EV_DROPPED = 0x02          # la file du firmware a débordé ; des événements sont perdus
+
+
+class FirmwareInfo:
+    """Identification renvoyée par MegClient.get_info().
+
+    `legacy` vaut True pour un firmware antérieur à l'opcode 1. Ce firmware
+    ignore silencieusement les opcodes inconnus, sans répondre : on le détecte
+    donc par l'expiration du délai de lecture et non par un signal positif.
+    Seuls les opcodes 10-16 et 20 peuvent être utilisés avec lui.
+    """
+
+    def __init__(self, version: int = 0, capabilities: int = 0, legacy: bool = False):
+        self.version = version
+        self.capabilities = capabilities
+        self.legacy = legacy
+
+    def has(self, capability: int) -> bool:
+        """True si le firmware annonce le bit CAP_* demandé."""
+        return bool(self.capabilities & capability)
+
+    def __repr__(self) -> str:
+        if self.legacy:
+            return "FirmwareInfo(legacy, pas de get_info)"
+        return f"FirmwareInfo(version={self.version}, capabilities=0x{self.capabilities:02X})"
+
+
+class InputEvent:
+    """Un changement d'état des boutons, horodaté par le firmware lui-même.
+
+    `mask` est l'état des boutons APRÈS le changement ; `t_us` est la valeur de
+    micros() sur l'Arduino au moment où il a été détecté. Le firmware
+    échantillonne à chaque tour de boucle (quelques microsecondes), si bien que
+    l'horodatage ne dépend pas du moment où l'hôte pense à interroger la carte —
+    contrairement à get_response_button_mask(), dont la résolution est votre
+    intervalle d'interrogation.
+
+    micros() reboucle toutes les ~71,6 minutes. Comparez les horodatages avec
+    MegClient.elapsed_us(), qui gère ce rebouclage.
+    """
+
+    def __init__(self, mask: int, t_us: int):
+        self.mask = mask
+        self.t_us = t_us
+
+    @property
+    def pressed(self) -> bool:
+        """True si au moins un bouton est enfoncé après cet événement."""
+        return self.mask != 0
+
+    def __repr__(self) -> str:
+        return f"InputEvent(mask=0b{self.mask:08b}, t_us={self.t_us})"
 
 
 class MegClient:
@@ -242,6 +307,160 @@ class MegClient:
         self._tx(bytes([OP_GET_RESPONSE_BUTTON]))
         resp = self._rx_exact(1)
         return resp[0]
+
+    # --------------------------------------------------------------------------
+    # Identification du firmware et détection des capacités
+    # --------------------------------------------------------------------------
+
+    def get_info(self) -> FirmwareInfo:
+        """
+        Demande au firmware de s'identifier (opcode 1).
+
+        Un firmware antérieur à la version 1 du protocole n'implémente pas cet
+        opcode et ne répond rien : on en déduit « legacy » par l'expiration du
+        délai de lecture. Vérifiez les capacités avant d'utiliser un opcode
+        au-delà de 20 : un ancien firmware ignore *silencieusement* les opcodes
+        inconnus, si bien que l'échec se traduit par une commande sans effet et
+        non par une erreur que l'on pourrait rattraper.
+
+        Retour :
+        - FirmwareInfo
+
+        Exemple :
+        >>> info = dev.get_info()
+        >>> if info.has(CAP_TIMESTAMPS):
+        ...     ev = dev.wait_for_press()
+        """
+        self._tx(bytes([OP_GET_INFO]))
+        try:
+            resp = self._rx_exact(5)
+        except TimeoutError:
+            return FirmwareInfo(legacy=True)
+        if resp[:3] != b"MTB":
+            raise RuntimeError(
+                f"réponse inattendue à get_info : {resp!r} (est-ce bien un boîtier TTL MEG ?)")
+        return FirmwareInfo(version=resp[3], capabilities=resp[4])
+
+    def set_port_mask(self, mask: int) -> None:
+        """
+        Affecte les 8 lignes de sortie en une seule fois (opcode 17).
+        Nécessite CAP_ATOMIC_PORT.
+
+        Contrairement à set_high_mask()/set_low_mask(), qui ne font que mettre à
+        1 ou à 0 et demandent donc deux commandes pour exprimer un octet complet,
+        cette commande écrit le port entier en une seule instruction. Aucune
+        valeur intermédiaire n'apparaît sur les broches : un appareil
+        d'enregistrement ne peut donc pas capturer un code de trigger à moitié
+        écrit.
+
+        Argument :
+        - mask : entier 0-255 ; le bit N met la ligne N à HIGH, un bit à 0 la met à LOW
+        """
+        if not (0 <= mask <= 255):
+            raise ValueError("mask doit être entre 0 et 255")
+        self._tx(bytes([OP_SET_PORT_MASK, mask]))
+
+    # --------------------------------------------------------------------------
+    # Événements d'entrée horodatés (nécessite CAP_TIMESTAMPS)
+    # --------------------------------------------------------------------------
+
+    def get_micros(self) -> int:
+        """Lit le compteur micros() de l'Arduino (opcode 22).
+
+        Utile pour aligner les horodatages du firmware sur l'horloge de l'hôte :
+        encadrez cet appel entre deux lectures de l'horloge locale et prenez le
+        point milieu.
+        """
+        self._tx(bytes([OP_GET_MICROS]))
+        return struct.unpack("<I", self._rx_exact(4))[0]
+
+    def clear_events(self) -> None:
+        """
+        Vide la file d'événements et réinitialise le détecteur de changement du
+        firmware (opcode 23), afin qu'un bouton déjà enfoncé ne soit pas signalé
+        comme un nouvel appui. À appeler entre deux essais.
+        """
+        self._tx(bytes([OP_CLEAR_EVENTS]))
+
+    def set_debounce(self, microseconds: int) -> None:
+        """
+        Ignore les transitions survenant moins de `microseconds` après la
+        précédente (opcode 24). 0 désactive, ce qui est la valeur par défaut.
+
+        Laissez cette option désactivée pour les boîtiers de réponse à fibre
+        optique, qui ne rebondissent pas : supprimer de vraies transitions est
+        pire que d'en signaler quelques-unes en trop. Utilisez-la pour des
+        boutons mécaniques, dont les rebonds peuvent saturer la file de 32
+        événements.
+        """
+        if not (0 <= microseconds <= 65535):
+            raise ValueError("le debounce doit être entre 0 et 65535 microsecondes")
+        self._tx(bytes([OP_SET_DEBOUNCE]) + struct.pack("<H", microseconds))
+
+    def get_event(self) -> tuple:
+        """
+        Récupère le plus ancien événement en attente (opcode 21).
+
+        La réponse fait toujours 6 octets, même si la file est vide : l'hôte n'a
+        donc jamais à deviner la longueur de ce qui arrive.
+
+        Retour :
+        - (event, dropped) où `event` est un InputEvent, ou None si la file était
+          vide, et `dropped` vaut True si la file du firmware a débordé depuis
+          l'appel précédent.
+
+        Un `dropped` à True signifie que des appuis ont été *perdus*, et non
+        simplement retardés : l'essai doit être considéré comme suspect plutôt
+        que silencieusement validé.
+        """
+        self._tx(bytes([OP_GET_EVENT]))
+        resp = self._rx_exact(6)
+        flags = resp[0]
+        dropped = bool(flags & EV_DROPPED)
+        if not (flags & EV_PRESENT):
+            return None, dropped
+        t_us = struct.unpack("<I", resp[2:6])[0]
+        return InputEvent(mask=resp[1], t_us=t_us), dropped
+
+    def wait_for_press(self, timeout: float = None) -> "InputEvent":
+        """
+        Bloque jusqu'à l'appui sur un bouton et renvoie l'événement portant
+        l'horodatage de cet appui tel que mesuré par le firmware.
+
+        C'est l'équivalent précis d'une boucle d'interrogation sur
+        get_response_button_mask() : votre interrogation ne détermine plus que le
+        moment où vous *apprenez* l'appui, et non l'instant enregistré.
+        Soustrayez l'horodatage d'apparition du stimulus au `t_us` de
+        l'événement pour obtenir un temps de réaction.
+
+        Arguments :
+        - timeout : délai d'attente en secondes, ou None pour attendre indéfiniment
+
+        Retour :
+        - InputEvent, ou None si le délai a expiré
+
+        Les relâchements sont ignorés. Appelez clear_events() au préalable pour
+        écarter les appuis restant de l'essai précédent.
+        """
+        deadline = None if timeout is None else time.monotonic() + timeout
+        while True:
+            ev, _ = self.get_event()
+            if ev is not None:
+                if ev.pressed:
+                    return ev
+                continue  # un relâchement : on continue de vider la file
+            if deadline is not None and time.monotonic() >= deadline:
+                return None
+            time.sleep(0.002)
+
+    @staticmethod
+    def elapsed_us(start_us: int, end_us: int) -> int:
+        """
+        Durée en microsecondes de `start_us` à `end_us`, en corrigeant le
+        rebouclage de micros() (~71,6 minutes). Valable pour des intervalles
+        inférieurs à environ 35,8 minutes.
+        """
+        return (end_us - start_us) & 0xFFFFFFFF
 
     def decode_forp(self, mask: int) -> List[str]:
         """
