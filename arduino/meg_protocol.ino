@@ -5,7 +5,9 @@
 static const uint8_t OUT_PINS[8] = {30,31,32,33,34,35,36,37};
 static const uint8_t IN_PINS[8]  = {22,23,24,25,26,27,28,29};
 
-static volatile uint16_t g_pulse_ms = 5;   // pulses duration
+static uint16_t g_pulse_ms   = 5;   // pulse duration in ms
+static uint8_t  g_active_mask = 0;  // pins currently held HIGH by a pulse
+static uint32_t g_pulse_end   = 0;  // millis() value at which the pulse ends
 
 //Helpers binary reading
 int readU8Blocking() {
@@ -33,13 +35,13 @@ void applyMaskLow(uint8_t mask) {
 }
 
 void pulseMask(uint8_t mask, uint16_t width_ms) {
-  for (uint8_t i=0;i<8;i++) {
-    if (mask & (1<<i)) digitalWrite(OUT_PINS[i], HIGH);
+  // End any in-progress pulse before starting a new one
+  if (g_active_mask) {
+    applyMaskLow(g_active_mask);
   }
-  delay(width_ms);
-  for (uint8_t i=0;i<8;i++) {
-    if (mask & (1<<i)) digitalWrite(OUT_PINS[i], LOW);
-  }
+  applyMaskHigh(mask);
+  g_active_mask = mask;
+  g_pulse_end   = millis() + width_ms;
 }
 
 // === Input ===
@@ -67,6 +69,12 @@ void setup() {
 }
 
 void loop() {
+  // End an active pulse when its duration has elapsed (non-blocking)
+  if (g_active_mask && millis() >= g_pulse_end) {
+    applyMaskLow(g_active_mask);
+    g_active_mask = 0;
+  }
+
   if (Serial.available() < 1) return;
   int opcode = readU8Blocking();
 
