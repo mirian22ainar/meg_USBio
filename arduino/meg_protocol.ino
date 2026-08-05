@@ -34,6 +34,18 @@ void applyMaskLow(uint8_t mask) {
   }
 }
 
+// releasePulseOwnership removes lines from the set an in-flight pulse will drop
+// when it expires.
+//
+// Without it, a manual level change made while a pulse is running is silently
+// undone: the teardown in loop() clears every line in g_active_mask regardless
+// of what has happened since. A paradigm that pulses a trigger and then sets a
+// persistent line within the pulse window (easy to hit - the default width is
+// 5 ms and USB latency is 1-2 ms) would lose that line with no error anywhere.
+static inline void releasePulseOwnership(uint8_t mask) {
+  g_active_mask &= (uint8_t)~mask;
+}
+
 void pulseMask(uint8_t mask, uint16_t width_ms) {
   // End any in-progress pulse before starting a new one
   if (g_active_mask) {
@@ -96,22 +108,30 @@ void loop() {
     }
     case 13: { // set_high_mask [u8 mask]
       uint8_t mask = (uint8_t)readU8Blocking();
+      releasePulseOwnership(mask);
       applyMaskHigh(mask);
       break;
     }
     case 14: { // set_low_mask [u8 mask]
       uint8_t mask = (uint8_t)readU8Blocking();
+      releasePulseOwnership(mask);
       applyMaskLow(mask);
       break;
     }
     case 15: { // set_high_on_line [u8 line]
       uint8_t line = (uint8_t)readU8Blocking();
-      if (line < 8) digitalWrite(OUT_PINS[line], HIGH);
+      if (line < 8) {
+        releasePulseOwnership((uint8_t)(1 << line));
+        digitalWrite(OUT_PINS[line], HIGH);
+      }
       break;
     }
     case 16: { // set_low_on_line [u8 line]
       uint8_t line = (uint8_t)readU8Blocking();
-      if (line < 8) digitalWrite(OUT_PINS[line], LOW);
+      if (line < 8) {
+        releasePulseOwnership((uint8_t)(1 << line));
+        digitalWrite(OUT_PINS[line], LOW);
+      }
       break;
     }
     case 20: { // get_response_button_mask -> write [u8 mask]
