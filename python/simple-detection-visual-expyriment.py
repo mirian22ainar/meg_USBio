@@ -15,27 +15,28 @@ MIN_WAIT_TIME = 1000
 MAX_WAIT_TIME = 2000
 MAX_RESPONSE_DELAY = 2000
 
-
 PORT = "/dev/ttyACM0"
-resp_box = MegClient(PORT) 
-resp_box.open()
+TRIGGER_LINE = 0  # Arduino output line used to mark stimulus onset in the MEG signal
+
+resp_box = MegClient(PORT)
 
 def get_resp_rt(max_duration):
-    while resp_box.get_response_button_mask() !=0: 
+    while resp_box.get_response_button_mask() != 0:
         pass
     start = time()
     m = resp_box.get_response_button_mask()
-    while (m == 0) & (time() - start < (max_duration/1000)):
+    while (m == 0) and (time() - start < (max_duration / 1000)):
         m = resp_box.get_response_button_mask()
     if m != 0:
         rt = time() - start
     else:
         rt = None
-    return m, rt 
+    return m, rt
 
 exp = design.Experiment(name="Visual Detection", text_size=40)
 #control.set_develop_mode(on=True)
 control.initialize(exp)
+resp_box.open()  # open after initialize so cleanup is handled by the try/finally below
 
 target = stimuli.FixCross(size=(50, 50), line_width=4)
 blankscreen = stimuli.BlankScreen()
@@ -51,18 +52,19 @@ instructions = stimuli.TextScreen("Instructions",
 
 exp.add_data_variable_names(['trial', 'wait', 'respkey', 'RT'])
 
-control.start(skip_ready_screen=True)
-instructions.present()
-exp.keyboard.wait()
+try:
+    control.start(skip_ready_screen=True)
+    instructions.present()
+    exp.keyboard.wait()
 
-for i_trial in range(N_TRIALS):
-    blankscreen.present()
-    waiting_time = random.randint(MIN_WAIT_TIME, MAX_WAIT_TIME)
-    exp.clock.wait(waiting_time)
-    target.present()
-    key_mask, rt = get_resp_rt(MAX_RESPONSE_DELAY)
-    exp.data.add([i_trial, waiting_time, key_mask, rt])
-
-
-resp_box.close()
-control.end()
+    for i_trial in range(N_TRIALS):
+        blankscreen.present()
+        waiting_time = random.randint(MIN_WAIT_TIME, MAX_WAIT_TIME)
+        exp.clock.wait(waiting_time)
+        target.present()
+        resp_box.send_trigger_on_line(TRIGGER_LINE)  # mark stimulus onset in MEG signal
+        key_mask, rt = get_resp_rt(MAX_RESPONSE_DELAY)
+        exp.data.add([i_trial, waiting_time, key_mask, rt])
+finally:
+    resp_box.close()
+    control.end()

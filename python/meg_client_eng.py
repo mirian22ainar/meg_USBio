@@ -41,6 +41,7 @@ with MegClient('/dev/ttyACM0') as dev:
 ====================================================================================
 """
 
+import time
 import serial
 import struct
 from typing import List, Dict
@@ -111,6 +112,8 @@ class MegClient:
         if self.ser and self.ser.is_open:
             return
         self.ser = serial.Serial(self.port, self.baud, timeout=self.timeout)
+        # Opening the port triggers a DTR reset on the Arduino; wait for it to boot.
+        time.sleep(2)
 
     def close(self):
         """Properly closes the serial connection."""

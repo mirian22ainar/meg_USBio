@@ -162,3 +162,11 @@ Avant d'exécuter les scripts Python, assure-toi que tu as installé les dépend
 
 **Note d’initialisation :**
 Effectuez cette étape uniquement lors de la mise en service du dispositif (ou après un redémarrage). Assurez-vous que l'Arduino est branchée correctement à votre ordinateur puis téléversez le firmware *meg_protocol.ino* sur l’Arduino via le bouton *Upload* de l’IDE Arduino.
+
+---
+
+## License
+
+Copyright 2025 Mirian Aïnar 
+
+This code is distributed under the GNU General Public License v3

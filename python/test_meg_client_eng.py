@@ -7,15 +7,15 @@ N_ATTEMPTS = 8
 WINDOW_MS = 5000        # duration of each response window in milliseconds
 
 # --- Response measurement function (max_duration in ms; rt returned in seconds) ---
-def get_resp_rt(max_duration):
+def get_resp_rt(client, max_duration):
     # Clear any ongoing button presses (wait until all are released)
-    while resp_box.get_response_button_mask() != 0:
+    while client.get_response_button_mask() != 0:
         pass
     start = time()
-    m = resp_box.get_response_button_mask()
+    m = client.get_response_button_mask()
     # Wait for a button press (mask != 0) or until timeout
     while (m == 0) and (time() - start < (max_duration / 1000)):
-        m = resp_box.get_response_button_mask()
+        m = client.get_response_button_mask()
     if m != 0:
         rt = time() - start
     else:
@@ -29,7 +29,7 @@ try:
     # --- Trigger test sequence ---
     print("Setting pulse duration = 5 ms")
     resp_box.set_trigger_duration(5)
-    sleep(10)
+    sleep(2)  # brief pause to let the command settle before the next step
 
     print("Pulse on lines 0..3 (mask 0b00001111)")
     resp_box.send_trigger_mask(0b00001111)
@@ -57,7 +57,7 @@ try:
     print(f"\n>>> Button press series: {N_ATTEMPTS} attempts, {WINDOW_MS} ms per attempt <<<\n")
     for i in range(1, N_ATTEMPTS + 1):
         print(f"[Attempt {i}/{N_ATTEMPTS}] Press a button (window {WINDOW_MS} ms)")
-        m, rt = get_resp_rt(WINDOW_MS)
+        m, rt = get_resp_rt(resp_box, WINDOW_MS)
 
         # Display result
         mask_str = f"{m:08b}" if isinstance(m, int) else str(m)
