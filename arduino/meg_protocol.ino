@@ -5,71 +5,6 @@
 static constexpr uint8_t OUT_PINS[8] = {30,31,32,33,34,35,36,37};
 static constexpr uint8_t IN_PINS[8]  = {22,23,24,25,26,27,28,29};
 
-// === Direct port access ===
-//
-// On the Mega 2560 both banks happen to land on a single AVR port each, so all
-// 8 lines can be written or read in ONE instruction instead of 8 sequential
-// digitalWrite/digitalRead calls (~4-5 us each). That matters for two reasons:
-// a trigger code becomes glitch-free (no interval during which the port shows a
-// half-written value an amplifier could latch), and reads sample all 8 buttons
-// at the same instant instead of smeared over ~40 us.
-//
-//   OUT_PINS 30..37 -> PORTC bits 7..0   (REVERSED: pin 30 = PC7, pin 37 = PC0)
-//   IN_PINS  22..29 -> PINA  bits 0..7   (in order: pin 22 = PA0, pin 29 = PA7)
-//
-// The reversal on PORTC is why maskToPortC/portCToMask exist; getting it wrong
-// mirrors the trigger code, which is the kind of bug that only shows up in the
-// recorded data. The static_asserts below fail the build if anyone renumbers
-// the pin arrays without updating this mapping.
-constexpr bool outPinsMatchPortC(uint8_t i = 0) {
-  return i == 8 ? true : (OUT_PINS[i] == 30 + i && outPinsMatchPortC(i + 1));
-}
-constexpr bool inPinsMatchPortA(uint8_t i = 0) {
-  return i == 8 ? true : (IN_PINS[i] == 22 + i && inPinsMatchPortA(i + 1));
-}
-static_assert(outPinsMatchPortC(),
-              "OUT_PINS must be D30..D37 (PORTC7..PORTC0) for direct port access");
-static_assert(inPinsMatchPortA(),
-              "IN_PINS must be D22..D29 (PORTA0..PORTA7) for direct port access");
-
-// reverseBits maps logical line order onto PORTC's reversed bit order.
-// Branch-free and constant-time, so it adds no jitter to a trigger.
-static inline uint8_t reverseBits(uint8_t b) {
-  b = (uint8_t)((b & 0xF0) >> 4 | (b & 0x0F) << 4);
-  b = (uint8_t)((b & 0xCC) >> 2 | (b & 0x33) << 2);
-  b = (uint8_t)((b & 0xAA) >> 1 | (b & 0x55) << 1);
-  return b;
-}
-
-// Nothing else in this sketch or the Arduino core writes PORTC (the millis()
-// ISR touches only timer registers), so the read-modify-write in setPortHigh /
-// setPortLow cannot be corrupted by an interrupt and needs no ATOMIC_BLOCK.
-static inline void setPortHigh(uint8_t mask) { PORTC |= reverseBits(mask); }
-static inline void setPortLow(uint8_t mask)  { PORTC &= (uint8_t)~reverseBits(mask); }
-
-// setPortAll assigns all 8 output lines at once — a single OUT instruction, so
-// the lines change simultaneously and no intermediate value is ever visible.
-static inline void setPortAll(uint8_t mask)  { PORTC = reverseBits(mask); }
-
-static inline void setLineHigh(uint8_t line) { PORTC |= (uint8_t)(1 << (7 - line)); }
-static inline void setLineLow(uint8_t line)  { PORTC &= (uint8_t)~(1 << (7 - line)); }
-
-// Firmware identification, reported by opcode 1 (get_info).
-//
-// Version 1 is the first build that answers get_info at all. Earlier firmware
-// falls through to the `default:` branch below and stays silent, so a host that
-// gets no reply must treat the box as pre-version-1 and restrict itself to the
-// original opcode set (10-16, 20).
-//
-// CAPS advertises optional features so a host can feature-detect instead of
-// assuming. Set a bit here only when the matching opcode is actually
-// implemented below, and keep the values in step with the MEGCap* constants in
-// the client libraries.
-static const uint8_t PROTOCOL_VERSION = 1;
-static const uint8_t CAP_ATOMIC_PORT  = 0x01; // reserved: single-write 8-bit port update
-static const uint8_t CAP_TIMESTAMPS   = 0x02; // reserved: micros()-timestamped input events
-static const uint8_t CAPS             = CAP_ATOMIC_PORT | CAP_TIMESTAMPS; // opcodes 17, 21-24
-
 static uint16_t g_pulse_ms   = 5;   // pulse duration in ms
 static uint8_t  g_active_mask = 0;  // pins currently held HIGH by a pulse
 static uint32_t g_pulse_end   = 0;  // millis() value at which the pulse ends
@@ -216,8 +151,6 @@ void loop() {
     applyMaskLow(g_active_mask);
     g_active_mask = 0;
   }
-
-  sampleButtons();
 
   if (Serial.available() < 1) return;
   int opcode = readU8Blocking();
